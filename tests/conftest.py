@@ -23,7 +23,7 @@ import sys
 from pathlib import Path
 from typing import Generator
 
-import allure
+
 import pytest
 from selenium.webdriver.remote.webdriver import WebDriver
 

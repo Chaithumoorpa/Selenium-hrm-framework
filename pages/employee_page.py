@@ -6,7 +6,7 @@ URL: /web/index.php/pim/viewEmployeeList
 """
 
 import time
-from typing import List, Optional
+from typing import List
 
 import allure
 from selenium.webdriver.common.by import By

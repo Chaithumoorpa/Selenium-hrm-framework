@@ -113,7 +113,7 @@ class LoginPage(BasePage):
 
     def is_login_page_visible(self) -> bool:
         """Verify login page is displayed."""
-        return self.is_element_visible(LoginLocators.LOGIN_LOGO)
+        return self.is_element_visible(LoginLocators.LOGIN_TITLE)
 
     def is_dashboard_visible(self) -> bool:
         """Verify successful login by checking Dashboard header."""

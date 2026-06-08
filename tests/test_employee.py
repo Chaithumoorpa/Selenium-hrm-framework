@@ -72,9 +72,10 @@ class TestEmployee:
         )
 
         assert emp_id, "Employee ID should not be empty after creation"
-        assert employee_page.is_on_profile_page(emp_id) or \
-               "viewPersonalDetails" in employee_page.get_current_url(), \
-            "Expected to land on employee profile page after creation"
+        assert (
+            employee_page.is_on_profile_page(emp_id)
+            or "viewPersonalDetails" in employee_page.get_current_url()
+        ), "Expected to land on employee profile page after creation"
 
     @allure.story("Add Employee")
     @allure.title("TC-EMP-002: Add employee with all fields including middle name")
@@ -108,17 +109,21 @@ class TestEmployee:
     @pytest.mark.smoke
     @pytest.mark.employee
     def test_search_employee_by_first_name(
-        self, employee_page: EmployeePage
+        self, employee_page: EmployeePage, faker_instance
     ) -> None:
         """
-        GIVEN: Admin is on Employee List page
-        WHEN:  Admin searches by first name 'Admin'
+        GIVEN: A known employee exists
+        WHEN:  Admin searches by that employee's first name
         THEN:  At least one result matching the search is returned
         """
-        results = employee_page.search_employee(first_name="Admin")
+        first = faker_instance.first_name()
+        last = faker_instance.last_name()
+        employee_page.add_employee(first_name=first, last_name=last)
+
+        results = employee_page.search_employee(first_name=first)
 
         assert len(results) > 0, \
-            "Expected at least one result when searching for 'Admin'"
+            f"Expected at least one result when searching for first name '{first}'"
 
     @allure.story("Search Employee")
     @allure.title("TC-EMP-005: Search by employee ID returns exact match")

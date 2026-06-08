@@ -27,7 +27,7 @@ logger = get_logger(__name__)
 APPLY_SUBMIT_BTN = (By.XPATH, "//button[@type='submit']")
 LEAVE_TYPE_LOCATOR = (
     By.XPATH,
-    "//label[text()='Leave Type']/following::div[contains(@class,'oxd-select-text')][1]",
+    "//label[contains(text(),'Leave Type')]/following::div[contains(@class,'oxd-select-text')][1]",
 )
 
 

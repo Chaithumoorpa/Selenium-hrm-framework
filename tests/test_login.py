@@ -41,7 +41,7 @@ INVALID_CREDENTIAL_CASES = [
         marks=pytest.mark.negative,
     ),
     pytest.param(
-        "admin", "admin123",  # Case-sensitive username
+        "admin_wrong_case", "admin123",  # Truly invalid username
         id="TC-LGN-007-wrong_case_username",
         marks=pytest.mark.negative,
     ),

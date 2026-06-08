@@ -6,7 +6,7 @@ Supports sheet-based data separation by module.
 """
 
 from pathlib import Path
-from typing import Any, Dict, Generator, List, Optional
+from typing import Any, Dict, List, Optional
 
 import openpyxl
 from openpyxl.worksheet.worksheet import Worksheet

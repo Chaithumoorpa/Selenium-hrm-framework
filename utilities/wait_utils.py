@@ -7,11 +7,9 @@ Design: Fluent wrapper around Selenium's WebDriverWait
   - Polling intervals configurable per call
 """
 
-from typing import Callable, List, Optional, Union
-
+from typing import Callable, List, Optional
 from selenium.common.exceptions import (
     ElementClickInterceptedException,
-    ElementNotInteractableException,
     NoSuchElementException,
     StaleElementReferenceException,
     TimeoutException,

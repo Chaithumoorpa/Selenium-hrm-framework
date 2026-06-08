@@ -5,7 +5,6 @@ Captures screenshots on failure, attaches to Allure reports,
 and saves to timestamped files.
 """
 
-import os
 from datetime import datetime
 from pathlib import Path
 from typing import Optional

@@ -9,18 +9,7 @@ Design: Decorator + Context Manager patterns
 
 import functools
 import time
-from typing import Any, Callable, Optional, Tuple, Type, Union
-
-import allure
-from tenacity import (
-    RetryError,
-    retry,
-    retry_if_exception_type,
-    stop_after_attempt,
-    wait_exponential,
-    wait_fixed,
-    before_sleep_log,
-)
+from typing import Any, Callable, Optional, Tuple, Type
 from selenium.common.exceptions import (
     ElementClickInterceptedException,
     NoSuchElementException,

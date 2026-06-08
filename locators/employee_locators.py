@@ -15,8 +15,14 @@ class EmployeeLocators:
     ADD_EMPLOYEE_MENU = (By.XPATH, "//a[text()='Add Employee']")
 
     # ── Employee List Page ────────────────────────────────────────────────────
-    SEARCH_FIRSTNAME = (By.XPATH, "//label[text()='First Name']/following::input[1]")
-    SEARCH_LASTNAME = (By.XPATH, "//label[text()='Last Name']/following::input[1]")
+    SEARCH_FIRSTNAME = (
+        By.XPATH,
+        "//label[contains(text(),'Employee Name')]/ancestor::div[contains(@class,'oxd-input-group')]//input"
+    )
+    SEARCH_LASTNAME = (
+        By.XPATH,
+        "//label[contains(text(),'Employee Name')]/ancestor::div[contains(@class,'oxd-input-group')]//input"
+    )
     SEARCH_EMPLOYEE_ID = (By.XPATH, "//label[text()='Employee Id']/following::input[1]")
     SEARCH_BUTTON = (By.XPATH, "//button[@type='submit']")
     RESET_BUTTON = (By.XPATH, "//button[@type='reset']")
@@ -46,7 +52,10 @@ class EmployeeLocators:
     PROFILE_LASTNAME = (By.NAME, "lastName")
     PROFILE_EMPLOYEE_ID = (By.XPATH, "//label[text()='Employee Id']/following::input[1]")
     PROFILE_SAVE_BUTTON = (By.XPATH, "//button[@type='submit']")
-    SUCCESS_TOAST = (By.XPATH, "//div[contains(@class,'oxd-toast-content')]//p[contains(@class,'oxd-text--toast-message')]")
+    SUCCESS_TOAST = (
+        By.XPATH,
+        "//div[contains(@class,'oxd-toast-content')]//p[contains(@class,'oxd-text--toast-message')]"
+    )
 
     # ── Delete Employee ───────────────────────────────────────────────────────
     DELETE_CHECKBOX_ALL = (By.XPATH, "//label[contains(@class,'oxd-checkbox-input-icon')]")

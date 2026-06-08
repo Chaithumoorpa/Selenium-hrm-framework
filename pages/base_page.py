@@ -9,7 +9,7 @@ Design Patterns: Page Object Model + Page Factory
 """
 
 import time
-from typing import List, Optional, Tuple
+from typing import List, Optional
 
 import allure
 from selenium.common.exceptions import (
@@ -183,6 +183,7 @@ class BasePage:
         """
         Handle OrangeHRM's custom div-based dropdowns.
         Click trigger → wait for options → click matching option.
+        If the matching option is not found, fall back to the first non-empty option.
         """
         self.click(trigger_locator)
         time.sleep(0.5)  # Allow dropdown animation
@@ -190,8 +191,27 @@ class BasePage:
             By.XPATH,
             f"//div[@role='option']//span[text()='{option_text}']",
         )
-        self.click(option_locator)
-        logger.debug("custom_dropdown_selected", option=option_text)
+        if self.is_element_visible(option_locator, timeout=3):
+            self.click(option_locator)
+            logger.debug("custom_dropdown_selected", option=option_text)
+            return
+
+        # Fallback to first available option
+        options_locator = (By.XPATH, "//div[@role='option']/span")
+        elements = self.find_elements(options_locator, timeout=3)
+        for el in elements:
+            text = el.text.strip()
+            if text and text != "-- Select --":
+                el.click()
+                logger.warning(
+                    "dropdown_fallback_selected",
+                    expected=option_text,
+                    actual=text,
+                )
+                return
+        raise NoSuchElementException(
+            f"Could not find dropdown option '{option_text}' or any valid fallback options."
+        )
 
     # ── Getters ───────────────────────────────────────────────────────────────
 

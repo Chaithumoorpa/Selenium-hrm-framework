@@ -10,6 +10,7 @@ Design: Decorator + Context Manager patterns
 import functools
 import time
 from typing import Any, Callable, Optional, Tuple, Type
+
 from selenium.common.exceptions import (
     ElementClickInterceptedException,
     NoSuchElementException,

@@ -8,6 +8,7 @@ Design: Fluent wrapper around Selenium's WebDriverWait
 """
 
 from typing import Callable, List, Optional
+
 from selenium.common.exceptions import (
     ElementClickInterceptedException,
     NoSuchElementException,

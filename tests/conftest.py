@@ -23,7 +23,6 @@ import sys
 from pathlib import Path
 from typing import Generator
 
-
 import pytest
 from selenium.webdriver.remote.webdriver import WebDriver
 
@@ -33,13 +32,8 @@ from pages.login_page import LoginPage
 from pages.recruitment_page import RecruitmentPage
 from utilities.config_reader import ConfigReader
 from utilities.driver_factory import DriverFactory
-from utilities.logger import (
-    bind_test_context,
-    clear_test_context,
-    get_logger,
-    setup_logging,
-)
-from utilities.screenshot_utils import capture_screenshot, capture_page_source
+from utilities.logger import bind_test_context, clear_test_context, get_logger, setup_logging
+from utilities.screenshot_utils import capture_page_source, capture_screenshot
 
 logger = get_logger(__name__)
 

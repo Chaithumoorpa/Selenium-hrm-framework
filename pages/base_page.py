@@ -12,10 +12,7 @@ import time
 from typing import List, Optional
 
 import allure
-from selenium.common.exceptions import (
-    NoSuchElementException,
-    TimeoutException,
-)
+from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -26,7 +23,7 @@ from selenium.webdriver.support.ui import Select
 from utilities.config_reader import ConfigReader
 from utilities.logger import get_logger
 from utilities.retry_utils import retry_on_failure
-from utilities.screenshot_utils import capture_screenshot, capture_page_source
+from utilities.screenshot_utils import capture_page_source, capture_screenshot
 from utilities.wait_utils import WaitUtils
 
 logger = get_logger(__name__)

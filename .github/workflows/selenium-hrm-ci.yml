@@ -207,7 +207,7 @@ jobs:
           merge-multiple: true
 
       - name: Generate Allure report
-        uses: simple-elf/allure-report-action@v1.7
+        uses: simple-elf/allure-report-action@master
         with:
           allure_results: reports/allure-results
           allure_report: reports/allure-report

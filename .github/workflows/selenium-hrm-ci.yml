@@ -1,0 +1,271 @@
+# =============================================================================
+# GitHub Actions — CI/CD Workflow
+# Enterprise Selenium HRM Framework
+# =============================================================================
+# Triggers: push to main/develop, PRs, weekly schedule
+# Jobs: lint → smoke → regression → docker-build → notify
+# =============================================================================
+
+name: Selenium HRM Framework CI
+
+on:
+  push:
+    branches: [ main, develop, release/*, feature/* ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    - cron: '0 2 * * *'    # Daily 2 AM UTC — full regression
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'dev'
+        type: choice
+        options: [ dev, staging, prod ]
+      test_suite:
+        description: 'Test suite to run'
+        required: true
+        default: 'smoke'
+        type: choice
+        options: [ smoke, regression, bdd, all ]
+      browser:
+        description: 'Browser'
+        required: true
+        default: 'chrome'
+        type: choice
+        options: [ chrome, firefox ]
+
+env:
+  PYTHON_VERSION: "3.12"
+  ENV: ${{ github.event.inputs.environment || 'dev' }}
+  BROWSER: ${{ github.event.inputs.browser || 'chrome' }}
+  HEADLESS: "true"
+
+jobs:
+
+  # ── Code Quality ────────────────────────────────────────────────────────────
+  lint:
+    name: 🎨 Code Quality
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install flake8 black isort pylint mypy types-PyYAML
+
+      - name: Run flake8
+        run: |
+          flake8 pages/ tests/ utilities/ locators/ step_definitions/ \
+            --max-line-length=120 \
+            --exclude=__pycache__ \
+            --format=default \
+            --count --statistics
+
+      - name: Check black formatting
+        run: black pages/ tests/ utilities/ locators/ --check --line-length=120
+
+      - name: Check import sorting
+        run: isort pages/ tests/ utilities/ locators/ --check-only --diff
+
+  # ── Smoke Tests ─────────────────────────────────────────────────────────────
+  smoke-tests:
+    name: 💨 Smoke Tests
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install Chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Create directories
+        run: |
+          mkdir -p reports/allure-results logs resources/screenshots
+
+      - name: Run smoke tests
+        run: |
+          ENV=${{ env.ENV }} BROWSER=${{ env.BROWSER }} HEADLESS=true \
+          pytest tests/ -m "smoke" \
+            --alluredir=reports/allure-results \
+            --tb=short -v \
+            --timeout=120 \
+            --reruns=2 --reruns-delay=3 \
+            --junit-xml=reports/junit/smoke-results.xml
+        continue-on-error: false
+
+      - name: Upload Allure results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results-smoke
+          path: reports/allure-results
+          retention-days: 7
+
+      - name: Upload screenshots on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: failure-screenshots
+          path: resources/screenshots/
+          retention-days: 3
+
+      - name: Upload test logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-logs-smoke
+          path: logs/
+          retention-days: 3
+
+  # ── Regression Tests ────────────────────────────────────────────────────────
+  regression-tests:
+    name: 🧪 Regression Tests
+    runs-on: ubuntu-latest
+    needs: smoke-tests
+    if: github.event_name == 'schedule' || github.event.inputs.test_suite == 'regression' || github.event.inputs.test_suite == 'all'
+    strategy:
+      matrix:
+        browser: [ chrome, firefox ]
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install Chrome
+        if: matrix.browser == 'chrome'
+        uses: browser-actions/setup-chrome@v1
+
+      - name: Install Firefox
+        if: matrix.browser == 'firefox'
+        uses: browser-actions/setup-firefox@v1
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Create directories
+        run: mkdir -p reports/allure-results logs resources/screenshots
+
+      - name: Run regression suite
+        run: |
+          ENV=${{ env.ENV }} BROWSER=${{ matrix.browser }} HEADLESS=true \
+          pytest tests/ -m "regression and not flaky" \
+            --alluredir=reports/allure-results \
+            --tb=short -v -n 2 \
+            --timeout=120 \
+            --reruns=2 --reruns-delay=5 \
+            --junit-xml=reports/junit/regression-${{ matrix.browser }}.xml
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results-regression-${{ matrix.browser }}
+          path: reports/allure-results
+          retention-days: 14
+
+  # ── Allure Report ───────────────────────────────────────────────────────────
+  allure-report:
+    name: 📊 Allure Report
+    runs-on: ubuntu-latest
+    needs: [ smoke-tests ]
+    if: always()
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Allure results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: allure-results-*
+          path: reports/allure-results
+          merge-multiple: true
+
+      - name: Generate Allure report
+        uses: simple-elf/allure-report-action@v1.7
+        with:
+          allure_results: reports/allure-results
+          allure_report: reports/allure-report
+          allure_history: allure-history
+
+      - name: Publish Allure report to GitHub Pages
+        if: github.ref == 'refs/heads/main'
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: reports/allure-report
+
+  # ── Docker Build ─────────────────────────────────────────────────────────────
+  docker-build:
+    name: 🐳 Docker Build
+    runs-on: ubuntu-latest
+    needs: smoke-tests
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release/')
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.DOCKER_REGISTRY }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_REGISTRY }}/selenium-hrm-framework:latest
+            ${{ secrets.DOCKER_REGISTRY }}/selenium-hrm-framework:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ── Slack Notify ─────────────────────────────────────────────────────────────
+  notify:
+    name: 📢 Notify
+    runs-on: ubuntu-latest
+    needs: [ smoke-tests ]
+    if: always()
+    steps:
+      - name: Slack notification
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ needs.smoke-tests.result }}
+          fields: repo,message,commit,author,action,eventName,ref,workflow
+          text: |
+            *Selenium HRM Framework* — ${{ needs.smoke-tests.result == 'success' && '✅ PASSED' || '❌ FAILED' }}
+            Branch: `${{ github.ref_name }}` | Suite: `smoke`
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

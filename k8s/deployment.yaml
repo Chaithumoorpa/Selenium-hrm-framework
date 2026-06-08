@@ -1,0 +1,153 @@
+# =============================================================================
+# Kubernetes — Deployment
+# Enterprise Selenium HRM Framework — Test Runner Job
+# =============================================================================
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: selenium-hrm-test-runner
+  namespace: selenium-hrm
+  labels:
+    app: selenium-hrm-framework
+    component: test-runner
+spec:
+  ttlSecondsAfterFinished: 3600   # Auto-cleanup after 1 hour
+  parallelism: 1
+  completions: 1
+  backoffLimit: 2
+  template:
+    metadata:
+      labels:
+        app: selenium-hrm-framework
+        component: test-runner
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: test-runner
+          image: your-registry.com/selenium-hrm-framework:latest
+          imagePullPolicy: Always
+          command:
+            - pytest
+            - tests/
+            - -m
+            - smoke
+            - --alluredir=/app/reports/allure-results
+            - -v
+            - --tb=short
+            - -n
+            - "2"
+          envFrom:
+            - configMapRef:
+                name: selenium-hrm-config
+            - secretRef:
+                name: selenium-hrm-secrets
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+            limits:
+              memory: "2Gi"
+              cpu: "2000m"
+          volumeMounts:
+            - name: allure-results
+              mountPath: /app/reports/allure-results
+            - name: test-logs
+              mountPath: /app/logs
+            - name: screenshots
+              mountPath: /app/resources/screenshots
+      volumes:
+        - name: allure-results
+          emptyDir: {}
+        - name: test-logs
+          emptyDir: {}
+        - name: screenshots
+          emptyDir: {}
+---
+# =============================================================================
+# Kubernetes — Selenium Grid Hub Deployment
+# =============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: selenium-hub
+  namespace: selenium-hrm
+  labels:
+    app: selenium-hub
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: selenium-hub
+  template:
+    metadata:
+      labels:
+        app: selenium-hub
+    spec:
+      containers:
+        - name: selenium-hub
+          image: selenium/hub:4.23.0
+          ports:
+            - containerPort: 4444
+            - containerPort: 4442
+            - containerPort: 4443
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+          livenessProbe:
+            httpGet:
+              path: /wd/hub/status
+              port: 4444
+            initialDelaySeconds: 30
+            periodSeconds: 15
+---
+# =============================================================================
+# Kubernetes — Chrome Node Deployment
+# =============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: selenium-chrome-node
+  namespace: selenium-hrm
+  labels:
+    app: selenium-chrome-node
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: selenium-chrome-node
+  template:
+    metadata:
+      labels:
+        app: selenium-chrome-node
+    spec:
+      containers:
+        - name: chrome-node
+          image: selenium/node-chrome:4.23.0
+          env:
+            - name: SE_EVENT_BUS_HOST
+              value: "selenium-hub-service"
+            - name: SE_EVENT_BUS_PUBLISH_PORT
+              value: "4442"
+            - name: SE_EVENT_BUS_SUBSCRIBE_PORT
+              value: "4443"
+            - name: SE_NODE_MAX_SESSIONS
+              value: "3"
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+            limits:
+              memory: "2Gi"
+              cpu: "2000m"
+          volumeMounts:
+            - mountPath: /dev/shm
+              name: dshm
+      volumes:
+        - name: dshm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 2Gi

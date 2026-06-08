@@ -1,0 +1,55 @@
+# =============================================================================
+# Config: production environment
+# =============================================================================
+
+app:
+  base_url: "${PROD_BASE_URL}"
+  timeout: 60
+  implicit_wait: 20
+  explicit_wait: 40
+  page_load_timeout: 120
+
+credentials:
+  admin:
+    username: "${PROD_ADMIN_USER}"
+    password: "${PROD_ADMIN_PASS}"
+
+browser:
+  default: "chrome"
+  headless: true
+  window_size: "1920,1080"
+  options:
+    - "--disable-notifications"
+    - "--no-sandbox"
+    - "--disable-dev-shm-usage"
+    - "--disable-gpu"
+    - "--headless=new"
+
+retry:
+  max_attempts: 5
+  wait_seconds: 5
+
+screenshot:
+  on_failure: true
+  on_pass: false
+  format: "png"
+  directory: "resources/screenshots"
+
+logging:
+  level: "WARNING"
+  format: "json"
+  file: "logs/hrm_test.log"
+  max_bytes: 52428800  # 50MB
+  backup_count: 20
+
+allure:
+  results_dir: "reports/allure-results"
+  environment:
+    app: "OrangeHRM"
+    version: "5.x"
+    env: "production"
+    browser: "chrome"
+
+testdata:
+  excel_file: "testdata/test_data.xlsx"
+  json_dir: "testdata"

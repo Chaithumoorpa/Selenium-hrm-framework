@@ -1,0 +1,48 @@
+{
+  "login_valid": {
+    "username": "Admin",
+    "password": "admin123",
+    "expected_url": "dashboard",
+    "expected_username": "Admin"
+  },
+  "login_invalid": [
+    {
+      "tc_id": "TC-LGN-005",
+      "username": "InvalidUser",
+      "password": "admin123",
+      "expected_error": "Invalid credentials"
+    },
+    {
+      "tc_id": "TC-LGN-006",
+      "username": "Admin",
+      "password": "WrongPassword",
+      "expected_error": "Invalid credentials"
+    },
+    {
+      "tc_id": "TC-LGN-007",
+      "username": "admin",
+      "password": "admin123",
+      "expected_error": "Invalid credentials"
+    }
+  ],
+  "login_empty": [
+    {
+      "tc_id": "TC-LGN-002",
+      "username": "",
+      "password": "admin123",
+      "expected_errors": ["Required"]
+    },
+    {
+      "tc_id": "TC-LGN-003",
+      "username": "Admin",
+      "password": "",
+      "expected_errors": ["Required"]
+    },
+    {
+      "tc_id": "TC-LGN-004",
+      "username": "",
+      "password": "",
+      "expected_errors": ["Required", "Required"]
+    }
+  ]
+}

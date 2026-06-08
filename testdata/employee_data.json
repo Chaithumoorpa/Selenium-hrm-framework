@@ -1,0 +1,41 @@
+{
+  "add_employee": [
+    {
+      "tc_id": "TC-EMP-009a",
+      "first_name": "Alice",
+      "middle_name": "Marie",
+      "last_name": "Johnson",
+      "create_login": false
+    },
+    {
+      "tc_id": "TC-EMP-009b",
+      "first_name": "Bob",
+      "middle_name": "",
+      "last_name": "Williams",
+      "create_login": false
+    },
+    {
+      "tc_id": "TC-EMP-009c",
+      "first_name": "Carol",
+      "middle_name": "Ann",
+      "last_name": "Davis",
+      "create_login": false
+    }
+  ],
+  "search_valid": [
+    {
+      "tc_id": "TC-EMP-003",
+      "search_type": "first_name",
+      "search_value": "Admin",
+      "expected_min_results": 1
+    }
+  ],
+  "search_no_results": [
+    {
+      "tc_id": "TC-EMP-006",
+      "search_type": "first_name",
+      "search_value": "ZZZNonExistentXXX999",
+      "expected_results": 0
+    }
+  ]
+}

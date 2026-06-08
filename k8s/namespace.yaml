@@ -1,0 +1,12 @@
+# =============================================================================
+# Kubernetes — Namespace
+# Enterprise Selenium HRM Framework
+# =============================================================================
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: selenium-hrm
+  labels:
+    app: selenium-hrm-framework
+    team: sdet
+    env: test

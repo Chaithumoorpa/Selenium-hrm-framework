@@ -1,0 +1,132 @@
+# =============================================================================
+# Enterprise Selenium HRM Framework — Docker Compose
+# =============================================================================
+# Services:
+#   - selenium-hub:    Selenium Grid Hub (orchestrator)
+#   - chrome-node:     Chrome browser node (scalable)
+#   - firefox-node:    Firefox browser node
+#   - test-runner:     Test execution container
+#   - allure:          Allure Report server
+# =============================================================================
+
+version: "3.9"
+
+networks:
+  selenium-net:
+    driver: bridge
+
+volumes:
+  allure-results:
+  allure-reports:
+  test-logs:
+  test-screenshots:
+
+services:
+
+  # ── Selenium Grid Hub ───────────────────────────────────────────────────────
+  selenium-hub:
+    image: selenium/hub:4.23.0
+    container_name: selenium-hub
+    ports:
+      - "4442:4442"   # Publisher port
+      - "4443:4443"   # Subscriber port
+      - "4444:4444"   # Grid UI + WebDriver
+    environment:
+      - GRID_MAX_SESSION=10
+      - GRID_BROWSER_TIMEOUT=60
+      - GRID_TIMEOUT=60
+      - SE_NODE_MAX_SESSIONS=5
+    networks:
+      - selenium-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4444/wd/hub/status"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+
+  # ── Chrome Browser Node ─────────────────────────────────────────────────────
+  chrome-node:
+    image: selenium/node-chrome:4.23.0
+    container_name: chrome-node
+    shm_size: "2gb"
+    depends_on:
+      selenium-hub:
+        condition: service_healthy
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+      - SE_NODE_MAX_SESSIONS=3
+      - SE_VNC_NO_PASSWORD=1
+    ports:
+      - "7900:7900"   # VNC viewer (no password)
+    networks:
+      - selenium-net
+    deploy:
+      replicas: 2
+
+  # ── Firefox Browser Node ────────────────────────────────────────────────────
+  firefox-node:
+    image: selenium/node-firefox:4.23.0
+    container_name: firefox-node
+    shm_size: "2gb"
+    depends_on:
+      selenium-hub:
+        condition: service_healthy
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+    networks:
+      - selenium-net
+
+  # ── Test Runner ─────────────────────────────────────────────────────────────
+  test-runner:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    container_name: selenium-test-runner
+    depends_on:
+      selenium-hub:
+        condition: service_healthy
+    environment:
+      - ENV=${ENV:-dev}
+      - BROWSER=${BROWSER:-chrome}
+      - HEADLESS=true
+      - SELENIUM_REMOTE_URL=http://selenium-hub:4444/wd/hub
+    volumes:
+      - allure-results:/app/reports/allure-results
+      - test-logs:/app/logs
+      - test-screenshots:/app/resources/screenshots
+      - ./testdata:/app/testdata:ro
+      - ./config:/app/config:ro
+    networks:
+      - selenium-net
+    command: >
+      pytest tests/
+        -m "${TEST_SUITE:-smoke}"
+        --alluredir=/app/reports/allure-results
+        -v --tb=short -n 2
+        --reruns=2
+        --timeout=120
+    profiles:
+      - test
+
+  # ── Allure Report Server ────────────────────────────────────────────────────
+  allure:
+    image: frankescobar/allure-docker-service:2.27.0
+    container_name: allure-server
+    ports:
+      - "5050:5050"   # API
+      - "5252:5252"   # UI
+    environment:
+      - CHECK_RESULTS_EVERY_SECONDS=3
+      - KEEP_HISTORY=20
+    volumes:
+      - allure-results:/app/allure-results
+      - allure-reports:/app/default-reports
+    networks:
+      - selenium-net
+    profiles:
+      - reporting

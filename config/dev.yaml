@@ -1,0 +1,64 @@
+# =============================================================================
+# Config: dev environment
+# Target: https://opensource-demo.orangehrmlive.com
+# =============================================================================
+
+app:
+  base_url: "https://opensource-demo.orangehrmlive.com"
+  timeout: 30
+  implicit_wait: 10
+  explicit_wait: 20
+  page_load_timeout: 60
+
+credentials:
+  admin:
+    username: "Admin"
+    password: "admin123"
+
+browser:
+  default: "chrome"
+  headless: false
+  window_size: "1920,1080"
+  options:
+    - "--disable-notifications"
+    - "--disable-popup-blocking"
+    - "--disable-infobars"
+    - "--no-sandbox"
+    - "--disable-dev-shm-usage"
+
+retry:
+  max_attempts: 3
+  wait_seconds: 2
+  exceptions:
+    - "StaleElementReferenceException"
+    - "ElementClickInterceptedException"
+    - "NoSuchElementException"
+
+screenshot:
+  on_failure: true
+  on_pass: false
+  format: "png"
+  directory: "resources/screenshots"
+
+logging:
+  level: "DEBUG"
+  format: "json"
+  file: "logs/hrm_test.log"
+  max_bytes: 10485760  # 10MB
+  backup_count: 5
+
+allure:
+  results_dir: "reports/allure-results"
+  environment:
+    app: "OrangeHRM"
+    version: "5.x"
+    env: "dev"
+    browser: "chrome"
+
+testdata:
+  excel_file: "testdata/test_data.xlsx"
+  json_dir: "testdata"
+
+reporting:
+  html_report: "reports/html/report.html"
+  junit_xml: "reports/junit/results.xml"

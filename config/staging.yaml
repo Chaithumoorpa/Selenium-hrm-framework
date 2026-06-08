@@ -1,0 +1,56 @@
+# =============================================================================
+# Config: staging environment
+# =============================================================================
+
+app:
+  base_url: "https://staging.orangehrmlive.com"
+  timeout: 45
+  implicit_wait: 15
+  explicit_wait: 30
+  page_load_timeout: 90
+
+credentials:
+  admin:
+    username: "${STAGING_ADMIN_USER}"
+    password: "${STAGING_ADMIN_PASS}"
+
+browser:
+  default: "chrome"
+  headless: true
+  window_size: "1920,1080"
+  options:
+    - "--disable-notifications"
+    - "--disable-popup-blocking"
+    - "--no-sandbox"
+    - "--disable-dev-shm-usage"
+    - "--disable-gpu"
+    - "--headless=new"
+
+retry:
+  max_attempts: 3
+  wait_seconds: 3
+
+screenshot:
+  on_failure: true
+  on_pass: false
+  format: "png"
+  directory: "resources/screenshots"
+
+logging:
+  level: "INFO"
+  format: "json"
+  file: "logs/hrm_test.log"
+  max_bytes: 10485760
+  backup_count: 10
+
+allure:
+  results_dir: "reports/allure-results"
+  environment:
+    app: "OrangeHRM"
+    version: "5.x"
+    env: "staging"
+    browser: "chrome"
+
+testdata:
+  excel_file: "testdata/test_data.xlsx"
+  json_dir: "testdata"

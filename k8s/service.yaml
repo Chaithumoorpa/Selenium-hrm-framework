@@ -1,0 +1,45 @@
+# =============================================================================
+# Kubernetes — Services
+# Enterprise Selenium HRM Framework
+# =============================================================================
+
+# Selenium Hub Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: selenium-hub-service
+  namespace: selenium-hrm
+  labels:
+    app: selenium-hub
+spec:
+  selector:
+    app: selenium-hub
+  ports:
+    - name: web
+      port: 4444
+      targetPort: 4444
+    - name: pub
+      port: 4442
+      targetPort: 4442
+    - name: sub
+      port: 4443
+      targetPort: 4443
+  type: ClusterIP
+---
+# Allure Report Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: allure-service
+  namespace: selenium-hrm
+spec:
+  selector:
+    app: allure-server
+  ports:
+    - name: api
+      port: 5050
+      targetPort: 5050
+    - name: ui
+      port: 5252
+      targetPort: 5252
+  type: ClusterIP

@@ -1,0 +1,96 @@
+# =============================================================================
+# Enterprise Selenium + PyTest HRM Framework — .gitignore
+# =============================================================================
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+*.pyc
+
+# --- Virtual Environments ---
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# --- Test Artifacts ---
+reports/allure-results/
+reports/allure-report/
+reports/html/
+logs/*.log
+resources/screenshots/*.png
+resources/screenshots/*.jpg
+resources/videos/
+
+# --- WebDrivers (managed by webdriver-manager) ---
+drivers/chromedriver*
+drivers/geckodriver*
+drivers/msedgedriver*
+drivers/*.zip
+
+# --- IDE ---
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# --- Environment Configs (never commit secrets) ---
+config/local.yaml
+.env.local
+.env.*.local
+secrets/
+
+# --- Test Outputs ---
+.pytest_cache/
+.coverage
+htmlcov/
+*.cover
+.hypothesis/
+junit-results.xml
+test-results.xml
+
+# --- mypy ---
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# --- Jupyter ---
+.ipynb_checkpoints
+
+# --- Docker ---
+*.tar
+
+# --- OS ---
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db

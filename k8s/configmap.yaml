@@ -1,0 +1,19 @@
+# =============================================================================
+# Kubernetes — ConfigMap
+# Enterprise Selenium HRM Framework
+# =============================================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: selenium-hrm-config
+  namespace: selenium-hrm
+  labels:
+    app: selenium-hrm-framework
+data:
+  ENV: "staging"
+  BROWSER: "chrome"
+  HEADLESS: "true"
+  SELENIUM_REMOTE_URL: "http://selenium-hub-service:4444/wd/hub"
+  LOG_LEVEL: "INFO"
+  WORKERS: "4"
+  TIMEOUT: "60"

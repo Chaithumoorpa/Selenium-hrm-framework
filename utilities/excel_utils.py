@@ -41,9 +41,7 @@ class ExcelUtils:
     @property
     def workbook(self) -> openpyxl.Workbook:
         if self._workbook is None:
-            self._workbook = openpyxl.load_workbook(
-                str(self.file_path), read_only=True, data_only=True
-            )
+            self._workbook = openpyxl.load_workbook(str(self.file_path), read_only=True, data_only=True)
             logger.debug("excel_workbook_loaded", sheets=self._workbook.sheetnames)
         return self._workbook
 
@@ -65,10 +63,7 @@ class ExcelUtils:
             KeyError: If sheet does not exist
         """
         if sheet_name not in self.workbook.sheetnames:
-            raise KeyError(
-                f"Sheet '{sheet_name}' not found. "
-                f"Available sheets: {self.workbook.sheetnames}"
-            )
+            raise KeyError(f"Sheet '{sheet_name}' not found. " f"Available sheets: {self.workbook.sheetnames}")
 
         sheet: Worksheet = self.workbook[sheet_name]
         rows = list(sheet.iter_rows(values_only=True))
@@ -93,9 +88,7 @@ class ExcelUtils:
         logger.info("excel_data_read", sheet=sheet_name, rows=len(data))
         return data
 
-    def get_row_by_id(
-        self, sheet_name: str, id_column: str, id_value: str
-    ) -> Optional[Dict[str, Any]]:
+    def get_row_by_id(self, sheet_name: str, id_column: str, id_value: str) -> Optional[Dict[str, Any]]:
         """
         Get a single row matching an ID value.
 
@@ -121,11 +114,7 @@ class ExcelUtils:
 
     def get_column_values(self, sheet_name: str, column_name: str) -> List[str]:
         """Get all values from a specific column."""
-        return [
-            row[column_name]
-            for row in self.get_sheet_data(sheet_name)
-            if column_name in row
-        ]
+        return [row[column_name] for row in self.get_sheet_data(sheet_name) if column_name in row]
 
     def close(self) -> None:
         """Close workbook and release file handle."""

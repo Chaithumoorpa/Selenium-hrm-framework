@@ -82,24 +82,18 @@ class BasePage:
 
     # ── Element Finding ───────────────────────────────────────────────────────
 
-    def find_element(
-        self, locator: tuple, timeout: Optional[int] = None
-    ) -> WebElement:
+    def find_element(self, locator: tuple, timeout: Optional[int] = None) -> WebElement:
         """Find visible element with explicit wait."""
         return self.wait.for_element_visible(locator, timeout)
 
-    def find_elements(
-        self, locator: tuple, timeout: Optional[int] = None
-    ) -> List[WebElement]:
+    def find_elements(self, locator: tuple, timeout: Optional[int] = None) -> List[WebElement]:
         """Find all visible matching elements."""
         try:
             return self.wait.for_all_elements_visible(locator, timeout)
         except TimeoutException:
             return []
 
-    def find_element_present(
-        self, locator: tuple, timeout: Optional[int] = None
-    ) -> WebElement:
+    def find_element_present(self, locator: tuple, timeout: Optional[int] = None) -> WebElement:
         """Find element present in DOM (may be hidden)."""
         return self.wait.for_element_present(locator, timeout)
 
@@ -137,9 +131,7 @@ class BasePage:
         logger.debug("js_click", locator=str(locator))
 
     @allure.step("Type text in field")
-    def type_text(
-        self, locator: tuple, text: str, clear_first: bool = True
-    ) -> None:
+    def type_text(self, locator: tuple, text: str, clear_first: bool = True) -> None:
         """Type text into an input field."""
         element = self.wait.for_element_clickable(locator)
         if clear_first:
@@ -177,9 +169,7 @@ class BasePage:
     # ── Custom Dropdown (div-based) ───────────────────────────────────────────
 
     @allure.step("Select custom dropdown option")
-    def select_custom_dropdown(
-        self, trigger_locator: tuple, option_text: str
-    ) -> None:
+    def select_custom_dropdown(self, trigger_locator: tuple, option_text: str) -> None:
         """
         Handle OrangeHRM's custom div-based dropdowns.
         Click trigger → wait for options → click matching option.
@@ -209,9 +199,7 @@ class BasePage:
                     actual=text,
                 )
                 return
-        raise NoSuchElementException(
-            f"Could not find dropdown option '{option_text}' or any valid fallback options."
-        )
+        raise NoSuchElementException(f"Could not find dropdown option '{option_text}' or any valid fallback options.")
 
     # ── Getters ───────────────────────────────────────────────────────────────
 
@@ -310,6 +298,4 @@ class BasePage:
     def highlight_element(self, locator: tuple) -> None:
         """Highlight element with yellow border (debugging aid)."""
         element = self.find_element(locator)
-        self.driver.execute_script(
-            "arguments[0].style.border='3px solid yellow'", element
-        )
+        self.driver.execute_script("arguments[0].style.border='3px solid yellow'", element)

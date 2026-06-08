@@ -101,9 +101,7 @@ class DriverFactory:
         return driver
 
     @staticmethod
-    def _create_local(
-        browser: str, headless: bool, config: ConfigReader
-    ) -> WebDriver:
+    def _create_local(browser: str, headless: bool, config: ConfigReader) -> WebDriver:
         """Create a local browser WebDriver."""
         extra_options: list = config.get("browser.options") or []
 
@@ -139,10 +137,7 @@ class DriverFactory:
             return webdriver.Edge(service=service, options=options)
 
         else:
-            raise ValueError(
-                f"Unsupported browser: '{browser}'. "
-                f"Choose from: chrome, firefox, edge"
-            )
+            raise ValueError(f"Unsupported browser: '{browser}'. " f"Choose from: chrome, firefox, edge")
 
     @staticmethod
     def _create_remote(browser: str, headless: bool, remote_url: str) -> WebDriver:

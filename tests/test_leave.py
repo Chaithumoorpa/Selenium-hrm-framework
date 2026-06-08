@@ -65,9 +65,7 @@ class TestLeave:
         success_msg = leave_page.get_success_message()
         errors = leave_page.get_error_messages()
 
-        assert is_submitted or success_msg, (
-            f"Leave submission failed. Errors: {errors}"
-        )
+        assert is_submitted or success_msg, f"Leave submission failed. Errors: {errors}"
 
     @allure.story("Apply Leave - Validation")
     @allure.title("TC-LVE-002: Apply leave without leave type shows validation error")
@@ -101,8 +99,7 @@ class TestLeave:
         """
         leave_page.open_leave_list()
 
-        assert leave_page.is_element_visible(LeaveLocators.SEARCH_BUTTON), \
-            "Expected Search button on Leave List page"
+        assert leave_page.is_element_visible(LeaveLocators.SEARCH_BUTTON), "Expected Search button on Leave List page"
 
     @allure.story("Leave Balance")
     @allure.title("TC-LVE-005: Leave balance is accessible on Apply Leave page")

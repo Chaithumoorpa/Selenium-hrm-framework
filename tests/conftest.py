@@ -221,4 +221,5 @@ def test_data_dir() -> Path:
 def faker_instance():
     """Faker instance for generating realistic test data."""
     from faker import Faker
+
     return Faker()

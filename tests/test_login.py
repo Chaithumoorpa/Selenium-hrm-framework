@@ -31,22 +31,26 @@ from utilities.config_reader import ConfigReader
 
 INVALID_CREDENTIAL_CASES = [
     pytest.param(
-        "InvalidUser", "admin123",
+        "InvalidUser",
+        "admin123",
         id="TC-LGN-005-invalid_username",
         marks=pytest.mark.negative,
     ),
     pytest.param(
-        "Admin", "WrongPass",
+        "Admin",
+        "WrongPass",
         id="TC-LGN-006-invalid_password",
         marks=pytest.mark.negative,
     ),
     pytest.param(
-        "admin_wrong_case", "admin123",  # Truly invalid username
+        "admin_wrong_case",
+        "admin123",  # Truly invalid username
         id="TC-LGN-007-wrong_case_username",
         marks=pytest.mark.negative,
     ),
     pytest.param(
-        "Admin@123", "admin123",
+        "Admin@123",
+        "admin123",
         id="TC-LGN-extra-special_chars_username",
         marks=pytest.mark.negative,
     ),
@@ -81,9 +85,7 @@ class TestLogin:
         login_page.open()
         login_page.login(config.admin_username, config.admin_password)
 
-        assert login_page.is_dashboard_visible(), (
-            "Expected Dashboard header to be visible after successful login"
-        )
+        assert login_page.is_dashboard_visible(), "Expected Dashboard header to be visible after successful login"
         logged_in_user = login_page.get_logged_in_username()
         assert logged_in_user, "Expected username to appear in top navigation bar"
 
@@ -107,9 +109,7 @@ class TestLogin:
 
         errors = login_page.get_field_error_messages()
         assert len(errors) > 0, "Expected at least one field validation error"
-        assert any("required" in e.lower() for e in errors), (
-            f"Expected 'required' in error messages. Got: {errors}"
-        )
+        assert any("required" in e.lower() for e in errors), f"Expected 'required' in error messages. Got: {errors}"
 
     @allure.story("Empty Field Validation")
     @allure.title("TC-LGN-003: Login with empty password shows required error")
@@ -146,9 +146,7 @@ class TestLogin:
         login_page.click_login()
 
         errors = login_page.get_field_error_messages()
-        assert len(errors) >= 2, (
-            f"Expected 2 required errors (username + password). Got {len(errors)}: {errors}"
-        )
+        assert len(errors) >= 2, f"Expected 2 required errors (username + password). Got {len(errors)}: {errors}"
 
     # ── Invalid Credentials (Data-Driven) ─────────────────────────────────────
 
@@ -160,9 +158,7 @@ class TestLogin:
     @pytest.mark.data_driven
     @pytest.mark.login
     @pytest.mark.parametrize("username,password", INVALID_CREDENTIAL_CASES)
-    def test_login_invalid_credentials(
-        self, login_page: LoginPage, username: str, password: str
-    ) -> None:
+    def test_login_invalid_credentials(self, login_page: LoginPage, username: str, password: str) -> None:
         """
         GIVEN: Login page is open
         WHEN:  User enters invalid/wrong credentials
@@ -173,16 +169,9 @@ class TestLogin:
         login_page.login(username, password)
 
         error = login_page.get_error_message()
-        assert error, (
-            f"Expected error message for invalid login. Got none. "
-            f"Credentials: {username}/{password}"
-        )
-        assert "invalid" in error.lower() or "credentials" in error.lower(), (
-            f"Unexpected error message: '{error}'"
-        )
-        assert not login_page.is_dashboard_visible(), (
-            "Dashboard should NOT be visible after invalid login attempt"
-        )
+        assert error, f"Expected error message for invalid login. Got none. " f"Credentials: {username}/{password}"
+        assert "invalid" in error.lower() or "credentials" in error.lower(), f"Unexpected error message: '{error}'"
+        assert not login_page.is_dashboard_visible(), "Dashboard should NOT be visible after invalid login attempt"
 
     # ── UI Element Verification ───────────────────────────────────────────────
 
@@ -200,14 +189,11 @@ class TestLogin:
 
         assert login_page.is_login_page_visible(), "Login logo/page not visible"
         from locators.login_locators import LoginLocators
-        assert login_page.is_element_visible(LoginLocators.USERNAME_INPUT), \
-            "Username input not visible"
-        assert login_page.is_element_visible(LoginLocators.PASSWORD_INPUT), \
-            "Password input not visible"
-        assert login_page.is_element_visible(LoginLocators.LOGIN_BUTTON), \
-            "Login button not visible"
-        assert login_page.is_element_visible(LoginLocators.FORGOT_PASSWORD_LINK), \
-            "Forgot password link not visible"
+
+        assert login_page.is_element_visible(LoginLocators.USERNAME_INPUT), "Username input not visible"
+        assert login_page.is_element_visible(LoginLocators.PASSWORD_INPUT), "Password input not visible"
+        assert login_page.is_element_visible(LoginLocators.LOGIN_BUTTON), "Login button not visible"
+        assert login_page.is_element_visible(LoginLocators.FORGOT_PASSWORD_LINK), "Forgot password link not visible"
 
     # ── Forgot Password ───────────────────────────────────────────────────────
 
@@ -227,9 +213,9 @@ class TestLogin:
         login_page.click_forgot_password()
 
         login_page.wait_for_url_to_contain("requestPasswordResetCode", timeout=10)
-        assert "requestPasswordResetCode" in login_page.get_current_url(), (
-            "Expected URL to contain 'requestPasswordResetCode' after clicking forgot password"
-        )
+        assert (
+            "requestPasswordResetCode" in login_page.get_current_url()
+        ), "Expected URL to contain 'requestPasswordResetCode' after clicking forgot password"
 
     # ── Logout ────────────────────────────────────────────────────────────────
 
@@ -251,9 +237,7 @@ class TestLogin:
 
         login_page.logout()
 
-        assert login_page.is_login_page_visible(), (
-            "Expected login page to be displayed after logout"
-        )
-        assert "auth/login" in login_page.get_current_url(), (
-            f"Expected login URL after logout. Got: {login_page.get_current_url()}"
-        )
+        assert login_page.is_login_page_visible(), "Expected login page to be displayed after logout"
+        assert (
+            "auth/login" in login_page.get_current_url()
+        ), f"Expected login URL after logout. Got: {login_page.get_current_url()}"

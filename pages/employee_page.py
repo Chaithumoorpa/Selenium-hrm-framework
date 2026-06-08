@@ -157,12 +157,14 @@ class EmployeePage(BasePage):
         for row in rows[1:]:  # Skip header row
             cells = row.find_elements(By.XPATH, ".//div[@role='cell']")
             if cells:
-                result.append({
-                    "id": cells[1].text.strip() if len(cells) > 1 else "",
-                    "name": cells[2].text.strip() if len(cells) > 2 else "",
-                    "job_title": cells[3].text.strip() if len(cells) > 3 else "",
-                    "status": cells[5].text.strip() if len(cells) > 5 else "",
-                })
+                result.append(
+                    {
+                        "id": cells[1].text.strip() if len(cells) > 1 else "",
+                        "name": cells[2].text.strip() if len(cells) > 2 else "",
+                        "job_title": cells[3].text.strip() if len(cells) > 3 else "",
+                        "status": cells[5].text.strip() if len(cells) > 5 else "",
+                    }
+                )
         logger.info("employee_search_results", count=len(result))
         return result
 

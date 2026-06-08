@@ -74,11 +74,7 @@ def retry_on_failure(
                         error=str(e)[:100],
                     )
                     if attempt < max_attempts:
-                        sleep_time = (
-                            wait_seconds * (2 ** (attempt - 1))
-                            if exponential
-                            else wait_seconds
-                        )
+                        sleep_time = wait_seconds * (2 ** (attempt - 1)) if exponential else wait_seconds
                         time.sleep(sleep_time)
 
             logger.error(

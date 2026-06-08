@@ -53,9 +53,7 @@ class TestEmployee:
     @pytest.mark.smoke
     @pytest.mark.regression
     @pytest.mark.employee
-    def test_add_employee_required_fields(
-        self, employee_page: EmployeePage, faker_instance
-    ) -> None:
+    def test_add_employee_required_fields(self, employee_page: EmployeePage, faker_instance) -> None:
         """
         GIVEN: Admin is logged in and on Add Employee page
         WHEN:  Admin fills in first name and last name only
@@ -73,8 +71,7 @@ class TestEmployee:
 
         assert emp_id, "Employee ID should not be empty after creation"
         assert (
-            employee_page.is_on_profile_page(emp_id)
-            or "viewPersonalDetails" in employee_page.get_current_url()
+            employee_page.is_on_profile_page(emp_id) or "viewPersonalDetails" in employee_page.get_current_url()
         ), "Expected to land on employee profile page after creation"
 
     @allure.story("Add Employee")
@@ -82,9 +79,7 @@ class TestEmployee:
     @allure.severity(allure.severity_level.NORMAL)
     @pytest.mark.regression
     @pytest.mark.employee
-    def test_add_employee_with_middle_name(
-        self, employee_page: EmployeePage, faker_instance
-    ) -> None:
+    def test_add_employee_with_middle_name(self, employee_page: EmployeePage, faker_instance) -> None:
         """
         GIVEN: Admin is on Add Employee page
         WHEN:  Admin fills first, middle, and last name
@@ -108,9 +103,7 @@ class TestEmployee:
     @pytest.mark.regression
     @pytest.mark.smoke
     @pytest.mark.employee
-    def test_search_employee_by_first_name(
-        self, employee_page: EmployeePage, faker_instance
-    ) -> None:
+    def test_search_employee_by_first_name(self, employee_page: EmployeePage, faker_instance) -> None:
         """
         GIVEN: A known employee exists
         WHEN:  Admin searches by that employee's first name
@@ -122,17 +115,14 @@ class TestEmployee:
 
         results = employee_page.search_employee(first_name=first)
 
-        assert len(results) > 0, \
-            f"Expected at least one result when searching for first name '{first}'"
+        assert len(results) > 0, f"Expected at least one result when searching for first name '{first}'"
 
     @allure.story("Search Employee")
     @allure.title("TC-EMP-005: Search by employee ID returns exact match")
     @allure.severity(allure.severity_level.CRITICAL)
     @pytest.mark.regression
     @pytest.mark.employee
-    def test_search_employee_by_id(
-        self, employee_page: EmployeePage, faker_instance
-    ) -> None:
+    def test_search_employee_by_id(self, employee_page: EmployeePage, faker_instance) -> None:
         """
         GIVEN: A known employee exists
         WHEN:  Admin searches by that employee's ID
@@ -145,8 +135,7 @@ class TestEmployee:
 
         # Search by the created ID
         results = employee_page.search_employee(employee_id=emp_id)
-        assert len(results) >= 1, \
-            f"Expected results for employee ID '{emp_id}'. Got {len(results)}"
+        assert len(results) >= 1, f"Expected results for employee ID '{emp_id}'. Got {len(results)}"
 
     @allure.story("Search Employee")
     @allure.title("TC-EMP-006: Search for non-existent employee shows no records")
@@ -154,9 +143,7 @@ class TestEmployee:
     @pytest.mark.regression
     @pytest.mark.negative
     @pytest.mark.employee
-    def test_search_nonexistent_employee(
-        self, employee_page: EmployeePage
-    ) -> None:
+    def test_search_nonexistent_employee(self, employee_page: EmployeePage) -> None:
         """
         GIVEN: Employee List is open
         WHEN:  Admin searches for a name that does not exist
@@ -165,19 +152,15 @@ class TestEmployee:
         """
         results = employee_page.search_employee(first_name="ZZZNonExistentXXX999")
 
-        assert employee_page.is_no_records_displayed(), \
-            "Expected 'No Records Found' for a non-existent employee name"
-        assert len(results) == 0, \
-            f"Expected empty results. Got: {results}"
+        assert employee_page.is_no_records_displayed(), "Expected 'No Records Found' for a non-existent employee name"
+        assert len(results) == 0, f"Expected empty results. Got: {results}"
 
     @allure.story("Search Employee")
     @allure.title("TC-EMP-007: Reset search restores full employee list")
     @allure.severity(allure.severity_level.NORMAL)
     @pytest.mark.regression
     @pytest.mark.employee
-    def test_reset_search_filters(
-        self, employee_page: EmployeePage
-    ) -> None:
+    def test_reset_search_filters(self, employee_page: EmployeePage) -> None:
         """
         GIVEN: Admin has performed a search
         WHEN:  Admin clicks Reset button
@@ -192,8 +175,7 @@ class TestEmployee:
 
         # After reset, should have employees
         count = employee_page.get_employee_count()
-        assert count > 0, \
-            "Expected employees to appear after resetting search filters"
+        assert count > 0, "Expected employees to appear after resetting search filters"
 
     @allure.story("Add Employee (Bulk/Data-Driven)")
     @allure.title("TC-EMP-009: Data-driven employee creation")
@@ -202,9 +184,7 @@ class TestEmployee:
     @pytest.mark.data_driven
     @pytest.mark.employee
     @pytest.mark.parametrize("emp_data", EMPLOYEE_BULK_DATA)
-    def test_add_employee_data_driven(
-        self, employee_page: EmployeePage, emp_data: dict
-    ) -> None:
+    def test_add_employee_data_driven(self, employee_page: EmployeePage, emp_data: dict) -> None:
         """
         GIVEN: Admin is on Add Employee page
         WHEN:  Admin adds employees from parametrized data

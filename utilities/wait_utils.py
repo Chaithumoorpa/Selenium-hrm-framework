@@ -56,88 +56,56 @@ class WaitUtils:
 
     # ── Element Conditions ────────────────────────────────────────────────────
 
-    def for_element_visible(
-        self, locator: tuple, timeout: Optional[int] = None
-    ) -> WebElement:
+    def for_element_visible(self, locator: tuple, timeout: Optional[int] = None) -> WebElement:
         """Wait for element to be visible in DOM."""
         logger.debug("wait_for_visible", locator=str(locator))
         try:
             return self._wait(timeout).until(EC.visibility_of_element_located(locator))
         except TimeoutException:
-            raise TimeoutException(
-                f"Element not visible after {timeout or self.timeout}s: {locator}"
-            )
+            raise TimeoutException(f"Element not visible after {timeout or self.timeout}s: {locator}")
 
-    def for_element_present(
-        self, locator: tuple, timeout: Optional[int] = None
-    ) -> WebElement:
+    def for_element_present(self, locator: tuple, timeout: Optional[int] = None) -> WebElement:
         """Wait for element to be present in DOM (may be hidden)."""
         try:
             return self._wait(timeout).until(EC.presence_of_element_located(locator))
         except TimeoutException:
-            raise TimeoutException(
-                f"Element not present after {timeout or self.timeout}s: {locator}"
-            )
+            raise TimeoutException(f"Element not present after {timeout or self.timeout}s: {locator}")
 
-    def for_element_clickable(
-        self, locator: tuple, timeout: Optional[int] = None
-    ) -> WebElement:
+    def for_element_clickable(self, locator: tuple, timeout: Optional[int] = None) -> WebElement:
         """Wait for element to be clickable."""
         logger.debug("wait_for_clickable", locator=str(locator))
         try:
             return self._wait(timeout).until(EC.element_to_be_clickable(locator))
         except TimeoutException:
-            raise TimeoutException(
-                f"Element not clickable after {timeout or self.timeout}s: {locator}"
-            )
+            raise TimeoutException(f"Element not clickable after {timeout or self.timeout}s: {locator}")
 
-    def for_element_invisible(
-        self, locator: tuple, timeout: Optional[int] = None
-    ) -> bool:
+    def for_element_invisible(self, locator: tuple, timeout: Optional[int] = None) -> bool:
         """Wait for element to disappear."""
         try:
             return self._wait(timeout).until(EC.invisibility_of_element_located(locator))
         except TimeoutException:
-            raise TimeoutException(
-                f"Element still visible after {timeout or self.timeout}s: {locator}"
-            )
+            raise TimeoutException(f"Element still visible after {timeout or self.timeout}s: {locator}")
 
-    def for_all_elements_visible(
-        self, locator: tuple, timeout: Optional[int] = None
-    ) -> List[WebElement]:
+    def for_all_elements_visible(self, locator: tuple, timeout: Optional[int] = None) -> List[WebElement]:
         """Wait for all matching elements to be visible."""
         try:
-            return self._wait(timeout).until(
-                EC.visibility_of_all_elements_located(locator)
-            )
+            return self._wait(timeout).until(EC.visibility_of_all_elements_located(locator))
         except TimeoutException:
-            raise TimeoutException(
-                f"Elements not all visible after {timeout or self.timeout}s: {locator}"
-            )
+            raise TimeoutException(f"Elements not all visible after {timeout or self.timeout}s: {locator}")
 
     # ── Text Conditions ───────────────────────────────────────────────────────
 
-    def for_text_in_element(
-        self, locator: tuple, text: str, timeout: Optional[int] = None
-    ) -> bool:
+    def for_text_in_element(self, locator: tuple, text: str, timeout: Optional[int] = None) -> bool:
         """Wait until element contains specific text."""
         logger.debug("wait_for_text", locator=str(locator), text=text)
         try:
-            return self._wait(timeout).until(
-                EC.text_to_be_present_in_element(locator, text)
-            )
+            return self._wait(timeout).until(EC.text_to_be_present_in_element(locator, text))
         except TimeoutException:
-            raise TimeoutException(
-                f"Text '{text}' not found in {locator} after {timeout or self.timeout}s"
-            )
+            raise TimeoutException(f"Text '{text}' not found in {locator} after {timeout or self.timeout}s")
 
-    def for_text_in_value(
-        self, locator: tuple, text: str, timeout: Optional[int] = None
-    ) -> bool:
+    def for_text_in_value(self, locator: tuple, text: str, timeout: Optional[int] = None) -> bool:
         """Wait until element's value attribute contains text."""
-        return self._wait(timeout).until(
-            EC.text_to_be_present_in_element_value(locator, text)
-        )
+        return self._wait(timeout).until(EC.text_to_be_present_in_element_value(locator, text))
 
     # ── URL / Title Conditions ────────────────────────────────────────────────
 
@@ -178,15 +146,11 @@ class WaitUtils:
 
     def for_page_load(self, timeout: Optional[int] = None) -> None:
         """Wait for full page load (document.readyState = complete)."""
-        self._wait(timeout).until(
-            lambda d: d.execute_script("return document.readyState") == "complete"
-        )
+        self._wait(timeout).until(lambda d: d.execute_script("return document.readyState") == "complete")
 
     def for_ajax_complete(self, timeout: Optional[int] = None) -> None:
         """Wait for jQuery AJAX calls to complete."""
         try:
-            self._wait(timeout).until(
-                lambda d: d.execute_script("return jQuery.active === 0")
-            )
+            self._wait(timeout).until(lambda d: d.execute_script("return jQuery.active === 0"))
         except Exception:
             pass  # Page may not use jQuery

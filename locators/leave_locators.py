@@ -18,7 +18,7 @@ class LeaveLocators:
     # ── Apply Leave Page ──────────────────────────────────────────────────────
     LEAVE_TYPE_DROPDOWN = (
         By.XPATH,
-        "//label[contains(text(),'Leave Type')]/following::div[contains(@class,'oxd-select-text')][1]"
+        "//label[contains(text(),'Leave Type')]/following::div[contains(@class,'oxd-select-text')][1]",
     )
     LEAVE_TYPE_OPTION = (By.XPATH, "//div[@role='option']//span[text()='{}']")
     FROM_DATE_INPUT = (By.XPATH, "//label[contains(text(),'From Date')]/following::input[1]")
@@ -35,7 +35,7 @@ class LeaveLocators:
     DATE_TO_FILTER = (By.XPATH, "//label[text()='Date']/following::input[2]")
     STATUS_DROPDOWN = (
         By.XPATH,
-        "//label[text()='Show Leave with Status']/following::div[contains(@class,'oxd-select-text')][1]"
+        "//label[text()='Show Leave with Status']/following::div[contains(@class,'oxd-select-text')][1]",
     )
     SEARCH_BUTTON = (By.XPATH, "//button[@type='submit']")
     LEAVE_TABLE_ROWS = (By.XPATH, "//div[@role='row'][contains(@class,'oxd-table-row')]")

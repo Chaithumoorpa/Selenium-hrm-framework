@@ -37,6 +37,7 @@ def _resolve_env_vars(value: Any) -> Any:
         "https://${HOST}/path" → "https://myhost.com/path"
     """
     if isinstance(value, str):
+
         def replacer(match: re.Match) -> str:
             var_name = match.group(1)
             env_val = os.environ.get(var_name)

@@ -22,6 +22,7 @@ spec:
         component: test-runner
     spec:
       restartPolicy: OnFailure
+      serviceAccountName: selenium-hrm-sa
       containers:
         - name: test-runner
           image: your-registry.com/selenium-hrm-framework:latest
@@ -55,6 +56,18 @@ spec:
               mountPath: /app/logs
             - name: screenshots
               mountPath: /app/resources/screenshots
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - "test -f /tmp/test_running || exit 0"
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            readOnlyRootFilesystem: false
       volumes:
         - name: allure-results
           emptyDir: {}
@@ -83,13 +96,17 @@ spec:
       labels:
         app: selenium-hub
     spec:
+      serviceAccountName: selenium-hrm-sa
       containers:
         - name: selenium-hub
           image: selenium/hub:4.23.0
           ports:
-            - containerPort: 4444
-            - containerPort: 4442
-            - containerPort: 4443
+            - name: web
+              containerPort: 4444
+            - name: pub
+              containerPort: 4442
+            - name: sub
+              containerPort: 4443
           resources:
             requests:
               memory: "256Mi"
@@ -103,6 +120,16 @@ spec:
               port: 4444
             initialDelaySeconds: 30
             periodSeconds: 15
+          readinessProbe:
+            httpGet:
+              path: /wd/hub/status
+              port: 4444
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            readOnlyRootFilesystem: false
 ---
 # =============================================================================
 # Kubernetes — Chrome Node Deployment
@@ -124,9 +151,13 @@ spec:
       labels:
         app: selenium-chrome-node
     spec:
+      serviceAccountName: selenium-hrm-sa
       containers:
         - name: chrome-node
           image: selenium/node-chrome:4.23.0
+          ports:
+            - name: node
+              containerPort: 5555
           env:
             - name: SE_EVENT_BUS_HOST
               value: "selenium-hub-service"
@@ -136,6 +167,8 @@ spec:
               value: "4443"
             - name: SE_NODE_MAX_SESSIONS
               value: "3"
+            - name: SE_NODE_SESSION_TIMEOUT
+              value: "300"
           resources:
             requests:
               memory: "512Mi"
@@ -146,8 +179,69 @@ spec:
           volumeMounts:
             - mountPath: /dev/shm
               name: dshm
+          livenessProbe:
+            httpGet:
+              path: /wd/hub/status
+              port: 5555
+            initialDelaySeconds: 30
+            periodSeconds: 15
+          readinessProbe:
+            httpGet:
+              path: /wd/hub/status
+              port: 5555
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            readOnlyRootFilesystem: false
       volumes:
         - name: dshm
           emptyDir:
             medium: Memory
             sizeLimit: 2Gi
+---
+# =============================================================================
+# Kubernetes — ServiceAccount
+# =============================================================================
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: selenium-hrm-sa
+  namespace: selenium-hrm
+  labels:
+    app: selenium-hrm-framework
+---
+# =============================================================================
+# Kubernetes — ClusterRole
+# =============================================================================
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: selenium-hrm-role
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "pods/log"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get", "list"]
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "list"]
+---
+# =============================================================================
+# Kubernetes — ClusterRoleBinding
+# =============================================================================
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: selenium-hrm-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: selenium-hrm-role
+subjects:
+  - kind: ServiceAccount
+    name: selenium-hrm-sa
+    namespace: selenium-hrm
